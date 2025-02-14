@@ -14,7 +14,7 @@ X = heart[features]
 Y = heart['output']
 scaler = MinMaxScaler()
 X_scaled = scaler.fit_transform(X)
-knn = KNeighborsClassifier()
+knn = KNeighborsClassifier(n_neighbors=5)
 knn.fit(X_scaled, Y)
 
 # ✅ Custom CSS for Light Green Background & Black Text
@@ -48,8 +48,8 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 🎯 **Title**
-st.title("Heart Safe AI - Heart Attack Prediction")
-st.markdown("### Enter the details below to predict the risk of heart attack.")
+st.title("Heart Safe AI - Heart Attack Risk Prediction")
+st.markdown("### Enter the details below to predict the risk level of heart attack.")
 
 # 🎯 **Centered Image (Splash Image)**
 st.markdown('<div class="image-container">', unsafe_allow_html=True)
@@ -83,12 +83,15 @@ if st.button("Predict"):
         user_input = np.array([[input_data[key] for key in features]])
         user_input_scaled = scaler.transform(user_input)
         prediction = knn.predict(user_input_scaled)[0]
+        
+        risk_levels = {
+            0: "Minimal Risk - Keep maintaining a healthy lifestyle!",
+            1: "Moderate Risk - Take precautions and monitor your health.",
+            2: "High Risk - Consider lifestyle changes and regular check-ups.",
+            3: "Severe Risk - Consult a doctor immediately!"
+        }
 
-        if prediction == 1:
-            st.error("High Risk of Heart Attack! Take precautions:")
-            st.markdown("- Maintain a healthy diet  \n- Regular exercise  \n- Avoid smoking & alcohol  \n- Consult a doctor")
-        else:
-            st.success("Low Risk of Heart Attack! Keep maintaining a healthy lifestyle.")
+        st.warning(risk_levels.get(prediction, "Unknown Risk Level"))
 
     except ValueError:
         st.error("Please enter valid numbers in all fields!")
