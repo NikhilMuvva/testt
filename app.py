@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 
 # ✅ Set Page Configuration
@@ -16,18 +16,19 @@ X = heart[features]
 Y = heart['output']
 
 # Scale features
-scaler = MinMaxScaler()
+scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
 # Train KNN Model
-knn = KNeighborsClassifier(n_neighbors=5, weights="distance")  # Weight by distance for better severe case detection
+knn = KNeighborsClassifier(n_neighbors=7, weights="distance")  # Increased k for better predictions
 knn.fit(X_scaled, Y)
 
 # 🎯 **Custom Styling**
 st.markdown("""
     <style>
-    .stApp { background-color: #DFFFD6; color: black; }
-    .stButton>button { background-color: #4CAF50 !important; color: white !important; border-radius: 10px; padding: 10px; }
+    .stApp { background-color: #F0F8FF; color: black; }
+    .stButton>button { background-color: #D32F2F !important; color: white !important; border-radius: 10px; padding: 10px; }
+    .stTextInput>label, .stSelectbox>label, .stSlider>label, .stNumberInput>label { color: #D32F2F; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -60,29 +61,23 @@ if st.button("🔎 Predict Heart Attack Risk"):
         user_input_scaled = scaler.transform(user_input)
         prediction = knn.predict(user_input_scaled)[0]
 
-        if prediction == 1:
+        # 🔥 **Fixed Severe Risk Logic**
+        severe_risk = (
+            input_data['cp'] == 3 or
+            input_data['trtbps'] >= 180 or
+            input_data['chol'] >= 500 or
+            input_data['exng'] == 1 or
+            input_data['oldpeak'] >= 5.0 or
+            input_data['caa'] >= 3
+        )
+
+        if severe_risk or prediction == 1:
             st.error("🚨 **High Risk of Heart Attack!** 🚨")
-            st.markdown("### **🛑 Warning!** Based on your inputs, there is a **severe risk** of heart complications.")
+            st.markdown("### **🛑 Severe Risk Detected!**")
             st.markdown("### **⚠️ Risk Factors:**")
-            st.markdown("- **Severe chest pain (cp)**")
-            st.markdown("- **High blood pressure (trtbps) and cholesterol (chol)**")
-            st.markdown("- **Exercise-induced angina (exng: Yes)**")
-            st.markdown("- **High ST depression (oldpeak)**")
-            st.markdown("- **Blocked arteries (caa)**")
-            st.markdown("---")
-            st.markdown("### 🏥 **Recommendations:**")
-            st.markdown("- **Consult a doctor immediately!** 🏥")
-            st.markdown("- Lifestyle changes: **Healthy diet, regular exercise, no smoking.**")
-            st.markdown("- Regular **BP and cholesterol check-ups.**")
-        else:
-            st.success("✅ **Low Risk of Heart Attack!**")
-            st.markdown("### 💪 Keep maintaining a healthy lifestyle!")
-
-    except ValueError:
-        st.error("❌ Please enter valid numbers in all fields!")
-
-# 🎯 **Find Maximum Risk Case from Dataset**
-if st.button("📊 Show Example of Severe Risk Case"):
-    severe_case = heart[heart['output'] == 1].sort_values(by=['oldpeak', 'caa', 'chol'], ascending=False).iloc[0]
-    st.markdown("### 🛑 **Example of a Severe Risk Patient from the Dataset:**")
-    st.write(severe_case.to_dict())
+            if input_data['cp'] == 3:
+                st.markdown("- **Severe Chest Pain**")
+            if input_data['trtbps'] >= 180:
+                st.markdown("- **Extremely High Blood Pressure**")
+            if input_data['chol'] >= 500:
+                st.markdown("- **Dangerously High Cholesterol**")
