@@ -32,57 +32,57 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 🎯 **Title & Description**
-st.title("Heart Safe AI - Heart Attack Prediction")
-st.markdown("### Enter the details below to predict the risk of heart attack.")
+st.title("💓 Heart Safe AI - Heart Attack Prediction")
+st.markdown("### 🏥 Enter your health details below to assess your heart attack risk.")
 
 # 🎯 **Form Inputs**
+st.markdown("### 🔍 Patient Information")
 input_data = {}
-for label, key in {
-    "Age": "age",
-    "Sex (0: Female, 1: Male)": "sex",
-    "Chest Pain Type (0-3)": "cp",
-    "Resting BP (mm Hg)": "trtbps",
-    "Cholesterol (mg/dL)": "chol",
-    "Fasting Blood Sugar (0: No, 1: Yes)": "fbs",
-    "Resting ECG (0-2)": "restecg",
-    "Max Heart Rate (bpm)": "thalachh",
-    "Exercise Angina (0: No, 1: Yes)": "exng",
-    "Old Peak (ST Depression)": "oldpeak",
-    "Slope (0-2)": "slp",
-    "Number of Vessels (0-4)": "caa",
-    "Thal (0-2)": "thall"
-}.items():
-    input_data[key] = st.number_input(label, min_value=0.0, step=1.0 if key != 'oldpeak' else 0.1)
+
+input_data['age'] = st.number_input("📅 Age", min_value=1, max_value=120, step=1)
+input_data['sex'] = st.selectbox("⚧ Sex", options=[0, 1], format_func=lambda x: "Female" if x == 0 else "Male")
+input_data['cp'] = st.slider("💔 Chest Pain Type (0: None, 3: Severe)", min_value=0, max_value=3, step=1)
+input_data['trtbps'] = st.number_input("🩸 Resting Blood Pressure (mm Hg)", min_value=80, max_value=200, step=1)
+input_data['chol'] = st.number_input("🍔 Cholesterol (mg/dL)", min_value=100, max_value=600, step=1)
+input_data['fbs'] = st.selectbox("🧪 Fasting Blood Sugar > 120 mg/dL?", options=[0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+input_data['restecg'] = st.selectbox("📊 Resting ECG (0: Normal, 2: Abnormal)", options=[0, 1, 2])
+input_data['thalachh'] = st.number_input("❤️ Max Heart Rate Achieved", min_value=60, max_value=220, step=1)
+input_data['exng'] = st.selectbox("🏃‍♂️ Exercise-Induced Angina?", options=[0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+input_data['oldpeak'] = st.number_input("📉 ST Depression (Oldpeak)", min_value=0.0, max_value=6.0, step=0.1)
+input_data['slp'] = st.selectbox("📈 Slope of ST Segment (0: Down, 2: Up)", options=[0, 1, 2])
+input_data['caa'] = st.slider("🩸 Number of Major Blocked Vessels (0-4)", min_value=0, max_value=4, step=1)
+input_data['thall'] = st.selectbox("🧬 Thalassemia (0-3)", options=[0, 1, 2, 3])
 
 # 🎯 **Prediction Button**
-if st.button("Predict"):
+if st.button("🔎 Predict Heart Attack Risk"):
     try:
         user_input = np.array([[input_data[key] for key in features]])
         user_input_scaled = scaler.transform(user_input)
         prediction = knn.predict(user_input_scaled)[0]
 
         if prediction == 1:
-            st.error("⚠️ **High Risk of Heart Attack!**")
-            st.markdown("### **Risk Factors to Consider:**")
-            st.markdown("- **Chest pain type (cp):** Higher values indicate more severe angina.")
-            st.markdown("- **Resting BP (trtbps) & Cholesterol:** Elevated levels increase risk.")
-            st.markdown("- **Exercise Angina (exng):** If positive, signals stress-related issues.")
-            st.markdown("- **ST Depression (oldpeak) & Slope:** Downsloping and high ST depression are risk indicators.")
-            st.markdown("- **Number of Blocked Vessels (caa):** More blockages = higher risk.")
+            st.error("🚨 **High Risk of Heart Attack!** 🚨")
+            st.markdown("### **🛑 Warning!** Based on your inputs, there is a **severe risk** of heart complications.")
+            st.markdown("### **⚠️ Risk Factors:**")
+            st.markdown("- **Severe chest pain (cp)**")
+            st.markdown("- **High blood pressure (trtbps) and cholesterol (chol)**")
+            st.markdown("- **Exercise-induced angina (exng: Yes)**")
+            st.markdown("- **High ST depression (oldpeak)**")
+            st.markdown("- **Blocked arteries (caa)**")
             st.markdown("---")
-            st.markdown("### 🚑 **Recommendations:**")
-            st.markdown("- Consult a cardiologist **immediately.**")
-            st.markdown("- Lifestyle changes: **Diet, exercise, no smoking/alcohol.**")
-            st.markdown("- Regular **blood pressure & cholesterol checks.**")
+            st.markdown("### 🏥 **Recommendations:**")
+            st.markdown("- **Consult a doctor immediately!** 🏥")
+            st.markdown("- Lifestyle changes: **Healthy diet, regular exercise, no smoking.**")
+            st.markdown("- Regular **BP and cholesterol check-ups.**")
         else:
             st.success("✅ **Low Risk of Heart Attack!**")
-            st.markdown("### Keep maintaining a healthy lifestyle! 🏃‍♂️🥗")
+            st.markdown("### 💪 Keep maintaining a healthy lifestyle!")
 
     except ValueError:
         st.error("❌ Please enter valid numbers in all fields!")
 
 # 🎯 **Find Maximum Risk Case from Dataset**
-if st.button("Show Example of Severe Risk Case"):
+if st.button("📊 Show Example of Severe Risk Case"):
     severe_case = heart[heart['output'] == 1].sort_values(by=['oldpeak', 'caa', 'chol'], ascending=False).iloc[0]
-    st.write("💀 **Example of a Severe Risk Patient:**")
+    st.markdown("### 🛑 **Example of a Severe Risk Patient from the Dataset:**")
     st.write(severe_case.to_dict())
