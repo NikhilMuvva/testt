@@ -81,3 +81,27 @@ if st.button("🔎 Predict Heart Attack Risk"):
                 st.markdown("- **Extremely High Blood Pressure**")
             if input_data['chol'] >= 500:
                 st.markdown("- **Dangerously High Cholesterol**")
+            if input_data['exng'] == 1:
+                st.markdown("- **Exercise-Induced Angina**")
+            if input_data['oldpeak'] >= 5.0:
+                st.markdown("- **Very High ST Depression (Oldpeak)**")
+            if input_data['caa'] >= 3:
+                st.markdown("- **Severely Blocked Arteries**")
+
+            st.markdown("---")
+            st.markdown("### 🏥 **Recommendations:**")
+            st.markdown("- **Consult a doctor immediately!** 🏥")
+            st.markdown("- **Healthy diet, regular exercise, no smoking.**")
+            st.markdown("- **Regular BP and cholesterol check-ups.**")
+        else:
+            st.success("✅ **Low Risk of Heart Attack!**")
+            st.markdown("### 💪 Keep maintaining a healthy lifestyle!")
+
+    except ValueError:
+        st.error("❌ Please enter valid numbers in all fields!")
+
+# 🎯 **Find Maximum Risk Case from Dataset**
+if st.button("📊 Show Example of Severe Risk Case"):
+    severe_case = heart[heart['output'] == 1].sort_values(by=['oldpeak', 'caa', 'chol'], ascending=False).iloc[0]
+    st.markdown("### 🛑 **Example of a Severe Risk Patient from the Dataset:**")
+    st.write(severe_case.to_dict())
